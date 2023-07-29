@@ -125,7 +125,7 @@ fun Route.getUser(userDataSource: UserDataSource) {
                     ?: throw IllegalStateException("Getting user error")
 
                 val user = userDataSource.getUserById(userId)
-                    ?: throw IllegalStateException("Getting user error. Invalid $userId")
+                    ?: throw IllegalStateException("Getting user error. Invalid id $userId")
 
                 call.respond(HttpStatusCode.OK, UserResponse(user.id, user.login))
             }
