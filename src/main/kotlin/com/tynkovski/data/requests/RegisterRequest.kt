@@ -1,9 +1,9 @@
-package com.tynkovski.data.models.requests
+package com.tynkovski.data.requests
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class LoginRequest(
+data class RegisterRequest(
     val login: String,
     val password: String,
 )

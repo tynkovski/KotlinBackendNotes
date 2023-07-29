@@ -1,8 +1,8 @@
-package com.tynkovski.data.models.responses
+package com.tynkovski.data.responses
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class RegisterResponse(
+data class LoginResponse(
     val token: String
 )

@@ -8,4 +8,13 @@ import org.koin.dsl.module
 
 val tokenModule = module {
     single<TokenService> { JwtTokenService() }
+
+    single<TokenConfig> { (config: ApplicationConfig) ->
+        TokenConfig(
+            issuer = config.property("jwt.issuer").getString(),
+            audience = config.property("jwt.audience").getString(),
+            expiresIn = 1000L * 60L * 60L * 24L * 365L,
+            secret = System.getenv("JWT_SECRET")
+        )
+    }
 }

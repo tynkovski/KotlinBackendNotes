@@ -1,4 +1,4 @@
-package com.tynkovski.data.models.entities
+package com.tynkovski.data.entities
 
 import kotlinx.serialization.Serializable
 import org.bson.codecs.pojo.annotations.BsonId
@@ -12,7 +12,7 @@ data class User(
     val salt: String
 ) {
     companion object {
-        fun collectionName() = "users"
+        const val TABLE_NAME = "users"
     }
 }
 
