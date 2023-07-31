@@ -1,7 +1,7 @@
 package com.tynkovski.routes
 
 import com.tynkovski.data.datasources.NoteDataSource
-import com.tynkovski.data.entities.Note
+import com.tynkovski.data.entities.Sort
 import com.tynkovski.data.mappers.noteMapper
 import com.tynkovski.data.requests.SaveNoteRequest
 import com.tynkovski.data.responses.NotesResponse
@@ -21,14 +21,15 @@ fun Route.getNotes(
             safe {
                 val offset = call.request.queryParameters["offset"]?.toInt() ?: 0
                 val limit = call.request.queryParameters["limit"]?.toInt() ?: 5
+                val sort = Sort.fromString(call.request.queryParameters["sort"])
 
                 val principal = call.principal<JWTPrincipal>()
                 val userId = principal?.getClaim("userId", String::class)
                     ?: throw IllegalStateException("Getting user error")
 
                 val notes = noteDataSource
-                    .getNotesPaged(userId, offset, limit)
-                    .map(noteMapper)
+                    .getNotesPaged(userId, sort, offset, limit)
+                    .map(::noteMapper)
 
                 call.respond(HttpStatusCode.OK, NotesResponse(notes))
             }
@@ -47,12 +48,7 @@ fun Route.saveNote(
                     ?: throw IllegalStateException("Getting user error")
 
                 val request = call.receive<SaveNoteRequest>()
-                val note = Note(
-                    ownerId = userId,
-                    text = request.text,
-                    tags = request.tags,
-                    color = request.color
-                )
+                val note = noteMapper(userId, request)
 
                 val wasAcknowledged = noteDataSource.createNote(note)
 
