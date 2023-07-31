@@ -32,6 +32,7 @@ fun Application.configureRouting() {
         // endregion
 
         // region Note
+        updateNote(noteDataSource)
         saveNote(noteDataSource)
         getNotes(noteDataSource)
         // endregion

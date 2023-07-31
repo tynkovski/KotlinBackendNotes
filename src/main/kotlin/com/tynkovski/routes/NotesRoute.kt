@@ -3,7 +3,8 @@ package com.tynkovski.routes
 import com.tynkovski.data.datasources.NoteDataSource
 import com.tynkovski.data.entities.Sort
 import com.tynkovski.data.mappers.noteMapper
-import com.tynkovski.data.requests.SaveNoteRequest
+import com.tynkovski.data.requests.CreateNoteRequest
+import com.tynkovski.data.requests.UpdateNoteRequest
 import com.tynkovski.data.responses.NotesResponse
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -41,16 +42,41 @@ fun Route.saveNote(
     noteDataSource: NoteDataSource
 ) {
     authenticate {
-        post("/note") {
+        post("/createNote") {
             safe {
                 val principal = call.principal<JWTPrincipal>()
                 val userId = principal?.getClaim("userId", String::class)
                     ?: throw IllegalStateException("Getting user error")
 
-                val request = call.receive<SaveNoteRequest>()
+                val request = call.receive<CreateNoteRequest>()
                 val note = noteMapper(userId, request)
 
                 val wasAcknowledged = noteDataSource.createNote(note)
+
+                if (wasAcknowledged) {
+                    call.respond(HttpStatusCode.OK)
+                } else {
+                    throw IllegalStateException("Saving note error")
+                }
+            }
+        }
+    }
+}
+
+fun Route.updateNote(
+    noteDataSource: NoteDataSource
+) {
+    authenticate {
+        post("/updateNote") {
+            safe {
+                val principal = call.principal<JWTPrincipal>()
+                val userId = principal?.getClaim("userId", String::class)
+                    ?: throw IllegalStateException("Getting user error")
+
+                val request = call.receive<UpdateNoteRequest>()
+                val note = noteMapper(userId, request)
+
+                val wasAcknowledged = noteDataSource.updateNote(note)
 
                 if (wasAcknowledged) {
                     call.respond(HttpStatusCode.OK)

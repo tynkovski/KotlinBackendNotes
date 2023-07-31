@@ -2,11 +2,14 @@ package com.tynkovski.data.datasources
 
 import com.mongodb.client.model.Filters
 import com.mongodb.client.model.Sorts
+import com.mongodb.client.model.Updates
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import com.tynkovski.data.entities.Note
 import com.tynkovski.data.entities.Sort
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.toList
+import org.bson.BsonTimestamp
+import org.bson.conversions.Bson
 
 interface NoteDataSource {
 
@@ -16,6 +19,10 @@ interface NoteDataSource {
 
     suspend fun createNote(note: Note): Boolean
 
+    suspend fun updateNote(
+        note: Note
+    ): Boolean
+
 }
 
 class NoteDataSourceImpl(
@@ -24,25 +31,29 @@ class NoteDataSourceImpl(
     private val notes = database.getCollection<Note>(Note.TABLE_NAME)
 
     override suspend fun getNotesPaged(ownerId: String, sort: Sort, offset: Int, limit: Int): List<Note> {
+        val filters = Filters.eq(Note::ownerId.name, ownerId)
+
         val ownerNotes = notes
-            .find(Filters.eq(Note::ownerId.name, ownerId))
+            .find(filters)
             .skip(offset)
             .limit(limit)
             .partial(true)
 
-        val sortedNotes = when(sort) {
+        val sortedNotes = when (sort) {
             is Sort.ByText -> {
                 if (sort.isAscending)
                     ownerNotes.sort(Sorts.ascending(Note::text.name))
                 else
                     ownerNotes.sort(Sorts.descending(Note::text.name))
             }
+
             is Sort.ByTitle -> {
                 if (sort.isAscending)
                     ownerNotes.sort(Sorts.ascending(Note::title.name))
                 else
                     ownerNotes.sort(Sorts.descending(Note::title.name))
             }
+
             is Sort.ByDate -> {
                 if (sort.isAscending)
                     ownerNotes.sort(Sorts.ascending(Note::createdAt.name))
@@ -55,12 +66,30 @@ class NoteDataSourceImpl(
     }
 
     override suspend fun getNote(ownerId: String, id: String): Note? {
+        val filters = Filters.and(Filters.eq(Note::ownerId.name, ownerId), Filters.eq("_id", id))
+
         return notes
-            .find(Filters.and(Filters.eq(Note::ownerId.name, ownerId), Filters.eq("_id", id)))
+            .find(filters)
             .firstOrNull()
     }
 
     override suspend fun createNote(note: Note): Boolean {
         return notes.insertOne(note).wasAcknowledged()
+    }
+
+    override suspend fun updateNote(
+        note: Note
+    ): Boolean {
+        val updates = buildList<Bson> {
+            add(Updates.set(Note::text.name, note.text))
+            add(Updates.set(Note::title.name, note.title))
+            add(Updates.set(Note::tags.name, note.tags))
+            add(Updates.set(Note::color.name, note.color))
+            add(Updates.set(Note::updatedAt.name, BsonTimestamp(System.currentTimeMillis())))
+        }
+
+        val filters = Filters.eq("_id", note.id)
+
+        return notes.updateOne(filters, updates).wasAcknowledged()
     }
 }

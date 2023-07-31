@@ -11,10 +11,11 @@ data class Note(
     val text: String,
     val ownerId: String,
     val title: String? = null,
-    val tags: List<String> = listOf<String>(),
     val color: Long? = null,
+    val tags: List<String> = listOf<String>(),
     @BsonId val id: String = ObjectId().toString(),
     @Contextual val createdAt: BsonTimestamp = BsonTimestamp(System.currentTimeMillis()),
+    @Contextual val updatedAt: BsonTimestamp? = null,
 ) {
     companion object {
         const val TABLE_NAME = "notes"
