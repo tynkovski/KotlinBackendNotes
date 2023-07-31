@@ -32,7 +32,7 @@ fun Route.getNotes(
                     .getNotesPaged(userId, sort, offset, limit)
                     .map(::noteMapper)
 
-                call.respond(HttpStatusCode.OK, NotesResponse(notes))
+                call.respond(HttpStatusCode.OK, NotesResponse(notes.size, notes))
             }
         }
     }

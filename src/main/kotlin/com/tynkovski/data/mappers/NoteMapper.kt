@@ -8,8 +8,8 @@ import com.tynkovski.data.responses.NoteResponse
 fun noteMapper(note: Note): NoteResponse = NoteResponse(
     id = note.id,
     text = note.text,
-    title = note.title,
     color = note.color,
+    title = note.title,
     tags = note.tags,
     createdAt = note.createdAt.value,
     updatedAt = note.updatedAt?.value

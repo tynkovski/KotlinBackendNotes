@@ -19,9 +19,7 @@ interface NoteDataSource {
 
     suspend fun createNote(note: Note): Boolean
 
-    suspend fun updateNote(
-        note: Note
-    ): Boolean
+    suspend fun updateNote(note: Note): Boolean
 
 }
 
@@ -82,9 +80,9 @@ class NoteDataSourceImpl(
     ): Boolean {
         val updates = buildList<Bson> {
             add(Updates.set(Note::text.name, note.text))
-            add(Updates.set(Note::title.name, note.title))
+            add(safetySet(Note::title.name, note.title))
+            add(safetySet(Note::color.name, note.color))
             add(Updates.set(Note::tags.name, note.tags))
-            add(Updates.set(Note::color.name, note.color))
             add(Updates.set(Note::updatedAt.name, BsonTimestamp(System.currentTimeMillis())))
         }
 
