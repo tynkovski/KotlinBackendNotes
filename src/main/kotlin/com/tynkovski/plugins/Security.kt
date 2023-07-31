@@ -12,7 +12,8 @@ import org.koin.ktor.ext.inject
 fun Application.configureSecurity() {
     val config by inject<TokenConfig> { parametersOf(environment.config) }
     val myRealm = environment.config.property("jwt.realm").getString()
-    authentication {
+
+    install(Authentication) {
         jwt {
             realm = myRealm
 

@@ -4,7 +4,6 @@ import com.tynkovski.data.datasources.UserDataSource
 import com.tynkovski.data.entities.User
 import com.tynkovski.data.requests.LoginRequest
 import com.tynkovski.data.requests.RegisterRequest
-import com.tynkovski.data.responses.ErrorWrapperResponse
 import com.tynkovski.data.responses.LoginResponse
 import com.tynkovski.data.responses.RegisterResponse
 import com.tynkovski.data.responses.UserResponse
@@ -20,7 +19,6 @@ import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.util.pipeline.*
 
 fun Route.register(
     userDataSource: UserDataSource,
@@ -51,7 +49,7 @@ fun Route.register(
                 salt = saltedHash.salt
             )
 
-            val wasAcknowledged = userDataSource.createUserAndGetId(newUser)
+            val wasAcknowledged = userDataSource.createUser(newUser)
 
             if (wasAcknowledged) {
                 val token = tokenService.generateToken(
