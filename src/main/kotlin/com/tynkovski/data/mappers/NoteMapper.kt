@@ -12,7 +12,7 @@ fun noteMapper(note: Note): NoteResponse = NoteResponse(
     title = note.title,
     tags = note.tags,
     createdAt = note.createdAt.value,
-    updatedAt = note.updatedAt?.value
+    updatedAt = note.updatedAt.value
 )
 
 fun noteMapper(userId: String, request: CreateNoteRequest): Note = Note(

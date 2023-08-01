@@ -10,12 +10,12 @@ import org.bson.types.ObjectId
 data class Note(
     val text: String,
     val ownerId: String,
-    val title: String? = null,
-    val color: Long? = null,
+    val title: String = "",
+    val color: Long = -1,
     val tags: List<String> = listOf<String>(),
     @BsonId val id: String = ObjectId().toString(),
     @Contextual val createdAt: BsonTimestamp = BsonTimestamp(System.currentTimeMillis()),
-    @Contextual val updatedAt: BsonTimestamp? = null,
+    @Contextual val updatedAt: BsonTimestamp = BsonTimestamp(-1L)
 ) {
     companion object {
         const val TABLE_NAME = "notes"

@@ -1,9 +1,6 @@
 package com.tynkovski.plugins
 
-import com.tynkovski.di.hashingModule
-import com.tynkovski.di.dataSourceModule
-import com.tynkovski.di.databaseModule
-import com.tynkovski.di.tokenModule
+import com.tynkovski.di.*
 import io.ktor.server.application.*
 import org.koin.ktor.plugin.Koin
 
@@ -13,7 +10,8 @@ fun Application.configureKoin() {
             databaseModule,
             dataSourceModule,
             hashingModule,
-            tokenModule
+            tokenModule,
+            serializationModule
         )
     }
 }

@@ -9,7 +9,6 @@ import com.tynkovski.data.entities.Sort
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.toList
 import org.bson.BsonTimestamp
-import org.bson.conversions.Bson
 
 interface NoteDataSource {
 
@@ -17,9 +16,9 @@ interface NoteDataSource {
 
     suspend fun getNote(ownerId: String, id: String): Note?
 
-    suspend fun createNote(note: Note): Boolean
+    suspend fun createNote(note: Note): String?
 
-    suspend fun updateNote(note: Note): Boolean
+    suspend fun updateNote(ownerId: String, note: Note): Boolean
 
 }
 
@@ -71,22 +70,23 @@ class NoteDataSourceImpl(
             .firstOrNull()
     }
 
-    override suspend fun createNote(note: Note): Boolean {
-        return notes.insertOne(note).wasAcknowledged()
+    override suspend fun createNote(note: Note): String? {
+        return notes.insertOne(note).insertedId?.asString()?.value
     }
 
     override suspend fun updateNote(
+        ownerId: String,
         note: Note
     ): Boolean {
-        val updates = buildList<Bson> {
-            add(Updates.set(Note::text.name, note.text))
-            add(safetySet(Note::title.name, note.title))
-            add(safetySet(Note::color.name, note.color))
-            add(Updates.set(Note::tags.name, note.tags))
-            add(Updates.set(Note::updatedAt.name, BsonTimestamp(System.currentTimeMillis())))
-        }
+        val updates = listOf(
+            Updates.set(Note::text.name, note.text),
+            Updates.set(Note::title.name, note.title),
+            Updates.set(Note::color.name, note.color),
+            Updates.set(Note::tags.name, note.tags),
+            Updates.set(Note::updatedAt.name, BsonTimestamp(System.currentTimeMillis())),
+        )
 
-        val filters = Filters.eq("_id", note.id)
+        val filters = Filters.and(Filters.eq(Note::ownerId.name, ownerId), Filters.eq("_id", note.id))
 
         return notes.updateOne(filters, updates).wasAcknowledged()
     }

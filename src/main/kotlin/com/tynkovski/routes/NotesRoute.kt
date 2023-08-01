@@ -5,6 +5,7 @@ import com.tynkovski.data.entities.Sort
 import com.tynkovski.data.mappers.noteMapper
 import com.tynkovski.data.requests.CreateNoteRequest
 import com.tynkovski.data.requests.UpdateNoteRequest
+import com.tynkovski.data.responses.NoteCreated
 import com.tynkovski.data.responses.NotesResponse
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -51,10 +52,10 @@ fun Route.saveNote(
                 val request = call.receive<CreateNoteRequest>()
                 val note = noteMapper(userId, request)
 
-                val wasAcknowledged = noteDataSource.createNote(note)
+                val id = noteDataSource.createNote(note)
 
-                if (wasAcknowledged) {
-                    call.respond(HttpStatusCode.OK)
+                if (id != null) {
+                    call.respond(HttpStatusCode.OK, NoteCreated(id))
                 } else {
                     throw IllegalStateException("Saving note error")
                 }
@@ -76,7 +77,7 @@ fun Route.updateNote(
                 val request = call.receive<UpdateNoteRequest>()
                 val note = noteMapper(userId, request)
 
-                val wasAcknowledged = noteDataSource.updateNote(note)
+                val wasAcknowledged = noteDataSource.updateNote(userId, note)
 
                 if (wasAcknowledged) {
                     call.respond(HttpStatusCode.OK)
