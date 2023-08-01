@@ -1,8 +1,7 @@
 package com.tynkovski.data.mappers
 
 import com.tynkovski.data.entities.Note
-import com.tynkovski.data.requests.CreateNoteRequest
-import com.tynkovski.data.requests.UpdateNoteRequest
+import com.tynkovski.data.requests.NoteRequest
 import com.tynkovski.data.responses.NoteResponse
 
 fun noteMapper(note: Note): NoteResponse = NoteResponse(
@@ -15,7 +14,7 @@ fun noteMapper(note: Note): NoteResponse = NoteResponse(
     updatedAt = note.updatedAt.value
 )
 
-fun noteMapper(userId: String, request: CreateNoteRequest): Note = Note(
+fun noteMapper(userId: String, request: NoteRequest): Note = Note(
     ownerId = userId,
     text = request.text,
     title = request.title,
@@ -23,8 +22,8 @@ fun noteMapper(userId: String, request: CreateNoteRequest): Note = Note(
     tags = request.tags,
 )
 
-fun noteMapper(userId: String, request: UpdateNoteRequest): Note = Note(
-    id = request.id,
+fun noteMapper(userId: String, noteId: String, request: NoteRequest): Note = Note(
+    id = noteId,
     ownerId = userId,
     text = request.text,
     title = request.title,

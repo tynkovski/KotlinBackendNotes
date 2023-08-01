@@ -18,4 +18,3 @@ data class NotesResponse(
     val count: Int,
     val notes: List<NoteResponse>
 )
-
