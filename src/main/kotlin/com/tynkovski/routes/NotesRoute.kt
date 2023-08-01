@@ -75,9 +75,9 @@ fun Route.saveNote(
                 val request = call.receive<CreateNoteRequest>()
                 val note = noteMapper(userId, request)
 
-                val id = noteDataSource.createNote(note)
+                val wasAcknowledged = noteDataSource.createNote(note)
 
-                if (id) {
+                if (wasAcknowledged) {
                     call.respond(HttpStatusCode.OK, noteMapper(note))
                 } else {
                     throw IllegalStateException("Saving note error")
