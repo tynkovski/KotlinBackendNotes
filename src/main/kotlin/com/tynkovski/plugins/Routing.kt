@@ -27,14 +27,17 @@ fun Application.configureRouting() {
         // region Auth
         register(userDataSource, hashingService, tokenService, config)
         login(userDataSource, hashingService, tokenService, config)
+        // endregion
+
+        // region User
         getUser(userDataSource)
-        authenticate()
         // endregion
 
         // region Note
         updateNote(noteDataSource)
         saveNote(noteDataSource)
         getNotes(noteDataSource)
+        deleteNote(noteDataSource)
         // endregion
     }
 }

@@ -10,9 +10,12 @@ interface UserDataSource {
 
     suspend fun getUserById(id: String): User?
 
+
     suspend fun getUserByLogin(login: String): User?
 
     suspend fun createUser(user: User): Boolean
+
+    suspend fun deleteUserById(id: String): Boolean
 }
 
 class UserDataSourceImpl(
@@ -20,10 +23,6 @@ class UserDataSourceImpl(
 ) : UserDataSource {
 
     private val users = database.getCollection<User>(User.TABLE_NAME)
-
-    private suspend fun getAllUsers() =  users
-        .find()
-        .toList()
 
     override suspend fun getUserById(id: String) =
         users.find(Filters.eq("_id", id)).firstOrNull()
@@ -35,4 +34,7 @@ class UserDataSourceImpl(
         if (getUserByLogin(user.login) != null) return false
         return users.insertOne(user).wasAcknowledged()
     }
+
+    override suspend fun deleteUserById(id: String) =
+        users.deleteOne(Filters.eq("_id", id)).wasAcknowledged()
 }

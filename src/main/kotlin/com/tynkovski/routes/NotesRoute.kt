@@ -19,7 +19,7 @@ fun Route.getNotes(
     noteDataSource: NoteDataSource
 ) {
     authenticate {
-        get("/notesPaged") {
+        get("/note/paged") {
             safe {
                 val offset = call.request.queryParameters["offset"]?.toInt() ?: 0
                 val limit = call.request.queryParameters["limit"]?.toInt() ?: 5
@@ -43,7 +43,7 @@ fun Route.saveNote(
     noteDataSource: NoteDataSource
 ) {
     authenticate {
-        post("/createNote") {
+        post("/note/create") {
             safe {
                 val principal = call.principal<JWTPrincipal>()
                 val userId = principal?.getClaim("userId", String::class)
@@ -54,8 +54,8 @@ fun Route.saveNote(
 
                 val id = noteDataSource.createNote(note)
 
-                if (id != null) {
-                    call.respond(HttpStatusCode.OK, NoteCreated(id))
+                if (id) {
+                    call.respond(HttpStatusCode.OK, noteMapper(note))
                 } else {
                     throw IllegalStateException("Saving note error")
                 }
@@ -68,7 +68,32 @@ fun Route.updateNote(
     noteDataSource: NoteDataSource
 ) {
     authenticate {
-        post("/updateNote") {
+        post("/note/update") {
+            safe {
+                val principal = call.principal<JWTPrincipal>()
+                val userId = principal?.getClaim("userId", String::class)
+                    ?: throw IllegalStateException("Getting user error")
+
+                val request = call.receive<UpdateNoteRequest>()
+                val note = noteMapper(userId, request)
+
+                val wasAcknowledged = noteDataSource.updateNote(userId, note)
+
+                if (wasAcknowledged) {
+                    call.respond(HttpStatusCode.OK, noteMapper(note))
+                } else {
+                    throw IllegalStateException("Saving note error")
+                }
+            }
+        }
+    }
+}
+
+fun Route.deleteNote(
+    noteDataSource: NoteDataSource
+) {
+    authenticate {
+        delete("/note/delete") {
             safe {
                 val principal = call.principal<JWTPrincipal>()
                 val userId = principal?.getClaim("userId", String::class)

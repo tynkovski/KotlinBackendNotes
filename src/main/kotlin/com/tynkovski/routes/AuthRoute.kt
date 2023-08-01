@@ -103,31 +103,3 @@ fun Route.login(
         }
     }
 }
-
-fun Route.authenticate() {
-    authenticate {
-        get("/authenticate") {
-            safe {
-                call.respond(HttpStatusCode.OK)
-            }
-        }
-    }
-}
-
-fun Route.getUser(userDataSource: UserDataSource) {
-    authenticate {
-        get("/user") {
-            safe {
-                val principal = call.principal<JWTPrincipal>()
-
-                val userId = principal?.getClaim("userId", String::class)
-                    ?: throw IllegalStateException("Getting user error")
-
-                val user = userDataSource.getUserById(userId)
-                    ?: throw IllegalStateException("Getting user error. Invalid id $userId")
-
-                call.respond(HttpStatusCode.OK, userMapper(user))
-            }
-        }
-    }
-}

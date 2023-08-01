@@ -16,9 +16,11 @@ interface NoteDataSource {
 
     suspend fun getNote(ownerId: String, id: String): Note?
 
-    suspend fun createNote(note: Note): String?
+    suspend fun createNote(note: Note): Boolean
 
     suspend fun updateNote(ownerId: String, note: Note): Boolean
+
+    suspend fun deleteNote(ownerId: String, note: Note): Boolean
 
 }
 
@@ -70,8 +72,8 @@ class NoteDataSourceImpl(
             .firstOrNull()
     }
 
-    override suspend fun createNote(note: Note): String? {
-        return notes.insertOne(note).insertedId?.asString()?.value
+    override suspend fun createNote(note: Note): Boolean {
+        return notes.insertOne(note).wasAcknowledged()
     }
 
     override suspend fun updateNote(
@@ -89,5 +91,11 @@ class NoteDataSourceImpl(
         val filters = Filters.and(Filters.eq(Note::ownerId.name, ownerId), Filters.eq("_id", note.id))
 
         return notes.updateOne(filters, updates).wasAcknowledged()
+    }
+
+    override suspend fun deleteNote(ownerId: String, note: Note): Boolean {
+        val filters = Filters.and(Filters.eq(Note::ownerId.name, ownerId), Filters.eq("_id", note.id))
+
+        return notes.deleteOne(filters).wasAcknowledged()
     }
 }
