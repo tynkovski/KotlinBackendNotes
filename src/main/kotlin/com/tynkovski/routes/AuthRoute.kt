@@ -2,6 +2,7 @@ package com.tynkovski.routes
 
 import com.tynkovski.data.datasources.UserDataSource
 import com.tynkovski.data.entities.User
+import com.tynkovski.data.mappers.userMapper
 import com.tynkovski.data.requests.LoginRequest
 import com.tynkovski.data.requests.RegisterRequest
 import com.tynkovski.data.responses.LoginResponse
@@ -125,7 +126,7 @@ fun Route.getUser(userDataSource: UserDataSource) {
                 val user = userDataSource.getUserById(userId)
                     ?: throw IllegalStateException("Getting user error. Invalid id $userId")
 
-                call.respond(HttpStatusCode.OK, UserResponse(user.id, user.login))
+                call.respond(HttpStatusCode.OK, userMapper(user))
             }
         }
     }
