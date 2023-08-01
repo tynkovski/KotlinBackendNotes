@@ -2,12 +2,8 @@ package com.tynkovski.routes
 
 import com.tynkovski.data.datasources.UserDataSource
 import com.tynkovski.data.entities.User
-import com.tynkovski.data.mappers.userMapper
-import com.tynkovski.data.requests.LoginRequest
-import com.tynkovski.data.requests.RegisterRequest
-import com.tynkovski.data.responses.LoginResponse
-import com.tynkovski.data.responses.RegisterResponse
-import com.tynkovski.data.responses.UserResponse
+import com.tynkovski.data.requests.AuthRequest
+import com.tynkovski.data.responses.AuthResponse
 import com.tynkovski.security.hashing.HashingService
 import com.tynkovski.security.hashing.SaltedHash
 import com.tynkovski.security.token.TokenClaim
@@ -15,8 +11,6 @@ import com.tynkovski.security.token.TokenConfig
 import com.tynkovski.security.token.TokenService
 import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.auth.*
-import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -29,7 +23,7 @@ fun Route.register(
 ) {
     post("/register") {
         safe {
-            val request = call.receive<RegisterRequest>()
+            val request = call.receive<AuthRequest>()
 
             val areFieldsBlank = request.login.isBlank() || request.password.isBlank()
             val isPasswordTooShort = request.password.length < 8
@@ -61,7 +55,7 @@ fun Route.register(
                     )
                 )
 
-                call.respond(HttpStatusCode.OK, RegisterResponse(token))
+                call.respond(HttpStatusCode.OK, AuthResponse(token))
             } else {
                 throw IllegalStateException("User already exists")
             }
@@ -77,7 +71,7 @@ fun Route.login(
 ) {
     post("/login") {
         safe {
-            val request = call.receive<LoginRequest>()
+            val request = call.receive<AuthRequest>()
 
             val user = userDataSource.getUserByLogin(request.login)
                 ?: throw IllegalStateException("No user with this login")
@@ -99,7 +93,7 @@ fun Route.login(
                 )
             )
 
-            call.respond(HttpStatusCode.OK, LoginResponse(token = token))
+            call.respond(HttpStatusCode.OK, AuthResponse(token = token))
         }
     }
 }

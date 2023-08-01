@@ -3,6 +3,6 @@ package com.tynkovski.data.responses
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class NoteCreated(
-    val id: String
+data class AuthResponse(
+    val token: String
 )

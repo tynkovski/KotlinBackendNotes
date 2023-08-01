@@ -5,7 +5,6 @@ import com.tynkovski.data.entities.Sort
 import com.tynkovski.data.mappers.noteMapper
 import com.tynkovski.data.requests.CreateNoteRequest
 import com.tynkovski.data.requests.UpdateNoteRequest
-import com.tynkovski.data.responses.NoteCreated
 import com.tynkovski.data.responses.NotesResponse
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -39,6 +38,29 @@ fun Route.getNotes(
     }
 }
 
+fun Route.getNote(
+    noteDataSource: NoteDataSource
+) {
+    authenticate {
+        get("/note/get") {
+            safe {
+                val principal = call.principal<JWTPrincipal>()
+
+                val userId = principal?.getClaim("userId", String::class)
+                    ?: throw IllegalStateException("Getting user error")
+
+                val id = call.request.queryParameters["id"] ?:
+                    throw IllegalStateException("ID must be specified")
+
+                val note = noteDataSource.getNote(userId, id) ?:
+                    throw IllegalStateException("Deleting note error. Invalid id $id")
+
+                call.respond(HttpStatusCode.OK, noteMapper(note))
+            }
+        }
+    }
+}
+
 fun Route.saveNote(
     noteDataSource: NoteDataSource
 ) {
@@ -46,6 +68,7 @@ fun Route.saveNote(
         post("/note/create") {
             safe {
                 val principal = call.principal<JWTPrincipal>()
+
                 val userId = principal?.getClaim("userId", String::class)
                     ?: throw IllegalStateException("Getting user error")
 
@@ -71,6 +94,7 @@ fun Route.updateNote(
         post("/note/update") {
             safe {
                 val principal = call.principal<JWTPrincipal>()
+
                 val userId = principal?.getClaim("userId", String::class)
                     ?: throw IllegalStateException("Getting user error")
 
@@ -96,16 +120,20 @@ fun Route.deleteNote(
         delete("/note/delete") {
             safe {
                 val principal = call.principal<JWTPrincipal>()
+
                 val userId = principal?.getClaim("userId", String::class)
                     ?: throw IllegalStateException("Getting user error")
 
-                val request = call.receive<UpdateNoteRequest>()
-                val note = noteMapper(userId, request)
+                val id = call.request.queryParameters["id"] ?:
+                    throw IllegalStateException("ID must be specified")
 
-                val wasAcknowledged = noteDataSource.updateNote(userId, note)
+                val note = noteDataSource.getNote(userId, id) ?:
+                    throw IllegalStateException("Deleting note error. Invalid id $id")
+
+                val wasAcknowledged = noteDataSource.deleteNote(userId, note)
 
                 if (wasAcknowledged) {
-                    call.respond(HttpStatusCode.OK)
+                    call.respond(HttpStatusCode.OK, noteMapper(note))
                 } else {
                     throw IllegalStateException("Saving note error")
                 }

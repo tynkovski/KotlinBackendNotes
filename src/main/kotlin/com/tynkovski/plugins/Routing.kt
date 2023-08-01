@@ -31,12 +31,14 @@ fun Application.configureRouting() {
 
         // region User
         getUser(userDataSource)
+        deleteUser(userDataSource)
         // endregion
 
         // region Note
-        updateNote(noteDataSource)
-        saveNote(noteDataSource)
+        getNote(noteDataSource)
         getNotes(noteDataSource)
+        saveNote(noteDataSource)
+        updateNote(noteDataSource)
         deleteNote(noteDataSource)
         // endregion
     }
