@@ -1,7 +1,7 @@
 package com.tynkovski.routes
 
 import com.tynkovski.data.datasources.NoteDataSource
-import com.tynkovski.data.entities.Sort
+import com.tynkovski.data.entities.Note
 import com.tynkovski.data.mappers.noteMapper
 import com.tynkovski.data.requests.NoteRequest
 import com.tynkovski.data.responses.NotesResponse
@@ -21,7 +21,7 @@ fun Route.getNotes(
             safe {
                 val offset = call.request.queryParameters["offset"]?.toInt() ?: 0
                 val limit = call.request.queryParameters["limit"]?.toInt() ?: 5
-                val sort = Sort.fromString(call.request.queryParameters["sort"])
+                val sort = Note.Sort.fromString(call.request.queryParameters["sort"])
 
                 val principal = call.principal<JWTPrincipal>()
 
@@ -49,11 +49,10 @@ fun Route.getNote(
                 val userId = principal?.getClaim("userId", String::class)
                     ?: throw IllegalStateException("Getting user error")
 
-                val id = call.request.queryParameters["id"] ?:
-                    throw IllegalStateException("ID must be specified")
+                val id = call.request.queryParameters["id"] ?: throw IllegalStateException("ID must be specified")
 
-                val note = noteDataSource.getNote(userId, id) ?:
-                    throw IllegalStateException("Getting note error. Invalid id $id")
+                val note = noteDataSource.getNote(userId, id)
+                    ?: throw IllegalStateException("Getting note error. Invalid id $id")
 
                 call.respond(HttpStatusCode.OK, noteMapper(note))
             }
@@ -99,8 +98,7 @@ fun Route.updateNote(
                 val userId = principal?.getClaim("userId", String::class)
                     ?: throw IllegalStateException("Getting user error")
 
-                val id = call.request.queryParameters["id"] ?:
-                    throw IllegalStateException("ID must be specified")
+                val id = call.request.queryParameters["id"] ?: throw IllegalStateException("ID must be specified")
 
                 val request = call.receive<NoteRequest>()
 
@@ -129,11 +127,10 @@ fun Route.deleteNote(
                 val userId = principal?.getClaim("userId", String::class)
                     ?: throw IllegalStateException("Getting user error")
 
-                val id = call.request.queryParameters["id"] ?:
-                    throw IllegalStateException("ID must be specified")
+                val id = call.request.queryParameters["id"] ?: throw IllegalStateException("ID must be specified")
 
-                val note = noteDataSource.getNote(userId, id) ?:
-                    throw IllegalStateException("Deleting note error. Invalid id $id")
+                val note = noteDataSource.getNote(userId, id)
+                    ?: throw IllegalStateException("Deleting note error. Invalid id $id")
 
                 val wasAcknowledged = noteDataSource.deleteNote(userId, note)
 

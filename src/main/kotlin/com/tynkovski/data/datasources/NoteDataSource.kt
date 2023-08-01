@@ -5,14 +5,13 @@ import com.mongodb.client.model.Sorts
 import com.mongodb.client.model.Updates
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import com.tynkovski.data.entities.Note
-import com.tynkovski.data.entities.Sort
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.toList
 import org.bson.BsonTimestamp
 
 interface NoteDataSource {
 
-    suspend fun getNotesPaged(ownerId: String, sort: Sort, offset: Int, limit: Int): List<Note>
+    suspend fun getNotesPaged(ownerId: String, sort: Note.Sort, offset: Int, limit: Int): List<Note>
 
     suspend fun getNote(ownerId: String, id: String): Note?
 
@@ -29,7 +28,7 @@ class NoteDataSourceImpl(
 ) : NoteDataSource {
     private val notes = database.getCollection<Note>(Note.TABLE_NAME)
 
-    override suspend fun getNotesPaged(ownerId: String, sort: Sort, offset: Int, limit: Int): List<Note> {
+    override suspend fun getNotesPaged(ownerId: String, sort: Note.Sort, offset: Int, limit: Int): List<Note> {
         val filters = Filters.eq(Note::ownerId.name, ownerId)
 
         val ownerNotes = notes
@@ -39,21 +38,21 @@ class NoteDataSourceImpl(
             .partial(true)
 
         val sortedNotes = when (sort) {
-            is Sort.ByText -> {
+            is Note.Sort.ByText -> {
                 if (sort.isAscending)
                     ownerNotes.sort(Sorts.ascending(Note::text.name))
                 else
                     ownerNotes.sort(Sorts.descending(Note::text.name))
             }
 
-            is Sort.ByTitle -> {
+            is Note.Sort.ByTitle -> {
                 if (sort.isAscending)
                     ownerNotes.sort(Sorts.ascending(Note::title.name))
                 else
                     ownerNotes.sort(Sorts.descending(Note::title.name))
             }
 
-            is Sort.ByDate -> {
+            is Note.Sort.ByDate -> {
                 if (sort.isAscending)
                     ownerNotes.sort(Sorts.ascending(Note::createdAt.name))
                 else
