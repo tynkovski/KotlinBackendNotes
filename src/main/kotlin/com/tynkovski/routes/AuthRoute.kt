@@ -21,7 +21,7 @@ fun Route.register(
     tokenService: TokenService,
     tokenConfig: TokenConfig
 ) {
-    post("/register") {
+    post("/auth/register") {
         safe {
             val request = call.receive<AuthRequest>()
 
@@ -69,7 +69,7 @@ fun Route.login(
     tokenService: TokenService,
     tokenConfig: TokenConfig
 ) {
-    post("/login") {
+    post("/auth/login") {
         safe {
             val request = call.receive<AuthRequest>()
 

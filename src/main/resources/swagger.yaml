@@ -1,0 +1,189 @@
+openapi: 3.0.3
+info:
+  title: Kotlin Notes
+  version: 1.0.0
+  contact: {}
+servers:
+  - url: 127.0.0.1
+paths:
+  /register:
+    post:
+      tags:
+        - auth
+      summary: register
+      description: Register
+      operationId: register
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                login:
+                  type: string
+                  example: tynkovski
+                password:
+                  type: string
+                  example: password123Test
+            example:
+              login: tynkovski
+              password: password123Test
+      responses:
+        '200':
+          description: ''
+  /login:
+    post:
+      tags:
+        - auth
+      summary: login
+      description: Register
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                login:
+                  type: string
+                  example: tynkovski
+                password:
+                  type: string
+                  example: password228Test
+            example:
+              login: tynkovski
+              password: password228Test
+      responses:
+        '200':
+          description: ''
+  /note/create:
+    post:
+      tags:
+        - note
+      summary: create note
+      description: create note
+      operationId: createNote
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tags:
+                  type: array
+                  items:
+                    type: string
+                    example: a
+                  example:
+                    - a
+                    - b
+                    - c
+                text:
+                  type: string
+                  example: New Note
+            example:
+              tags:
+                - a
+                - b
+                - c
+              text: New Note
+      responses:
+        '200':
+          description: ''
+  /note/update:
+    put:
+      tags:
+        - notes
+      summary: update note
+      description: update note
+      operationId: updateNote
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+            example: 64c96866ca5c8537657db18d
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+                  example: Another Text 4
+                title:
+                  type: string
+                  example: Another Title 4
+            example:
+              text: Another Text 4
+              title: Another Title 4
+      responses:
+        '200':
+          description: ''
+  /note/delete:
+    delete:
+      tags:
+        - notes
+      summary: delete note
+      description: delete note
+      operationId: deleteNote
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+            example: 64c96b47c0272f585fc25314
+      responses:
+        '200':
+          description: ''
+  /note/get:
+    get:
+      tags:
+        - notes
+      summary: get note
+      description: get note
+      operationId: getNote
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+            example: 64c96b47c0272f585fc25314
+      responses:
+        '200':
+          description: ''
+  /note/paged:
+    get:
+      tags:
+        - notes
+      summary: get paged notes
+      description: get paged notes
+      operationId: getPagedNotes
+      responses:
+        '200':
+          description: ''
+  /user/get:
+    get:
+      tags:
+        - user
+      summary: get user
+      description: get user
+      operationId: getUser
+      responses:
+        '200':
+          description: ''
+  /user/delete:
+    delete:
+      tags:
+        - user
+      summary: delete user
+      description: delete user
+      operationId: deleteUser
+      responses:
+        '200':
+          description: ''
+tags:
+  - name: auth
+  - name: notes
+  - name: user

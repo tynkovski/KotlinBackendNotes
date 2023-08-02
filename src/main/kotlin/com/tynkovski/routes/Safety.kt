@@ -5,7 +5,6 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.*
 import io.ktor.server.response.*
-import io.ktor.server.routing.*
 import io.ktor.util.pipeline.*
 
 suspend inline fun PipelineContext<Unit, ApplicationCall>.safe(
@@ -18,4 +17,13 @@ suspend inline fun PipelineContext<Unit, ApplicationCall>.safe(
     call.respond(HttpStatusCode.BadRequest, ErrorWrapperResponse(error.message.toString()))
 } catch (error: Exception) {
     call.respond(HttpStatusCode.NotAcceptable, ErrorWrapperResponse(error.message.toString()))
+}
+
+suspend inline fun PipelineContext<Unit, ApplicationCall>.throws(
+    status: HttpStatusCode,
+    crossinline operation: suspend () -> Unit,
+) = try {
+    operation()
+} catch (exception: Exception) {
+    call.respond(status, ErrorWrapperResponse(exception.message.toString()))
 }

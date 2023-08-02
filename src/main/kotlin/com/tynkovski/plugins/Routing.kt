@@ -7,6 +7,7 @@ import com.tynkovski.security.hashing.HashingService
 import com.tynkovski.security.token.TokenConfig
 import com.tynkovski.security.token.TokenService
 import io.ktor.server.application.*
+import io.ktor.server.plugins.swagger.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.koin.core.parameter.parametersOf
@@ -20,6 +21,10 @@ fun Application.configureRouting() {
     val config by inject<TokenConfig> { parametersOf(environment.config) }
 
     routing {
+        // region Swagger
+        swaggerUI(path = "swagger", swaggerFile = "swagger.yaml") // https://editor.swagger.io/
+        // endregion
+
         // region Test
         get("/hello") { call.respondText("Welcome to notes") }
         // endregion
@@ -32,6 +37,7 @@ fun Application.configureRouting() {
         // region User
         getUser(userDataSource)
         deleteUser(userDataSource)
+        changePassword(userDataSource, hashingService)
         // endregion
 
         // region Note

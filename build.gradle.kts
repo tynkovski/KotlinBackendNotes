@@ -45,4 +45,5 @@ dependencies {
     implementation("org.mongodb:mongodb-driver-kotlin-coroutine:$kmongo_version")
 
     implementation("commons-codec:commons-codec:$commons_codec_version")
+    implementation("io.ktor:ktor-server-swagger:$ktor_version")
 }
