@@ -2,7 +2,7 @@ package com.tynkovski.routes
 
 import com.tynkovski.data.datasources.UserDataSource
 import com.tynkovski.data.mappers.userMapper
-import com.tynkovski.data.requests.ChangePasswordRequest
+import com.tynkovski.data.requests.PasswordRequest
 import com.tynkovski.security.hashing.HashingService
 import com.tynkovski.security.hashing.SaltedHash
 import io.ktor.http.*
@@ -67,7 +67,7 @@ fun Route.changePassword(
                 val user = userDataSource.getUserById(userId)
                     ?: throw IllegalStateException("Getting user error. Invalid id $userId")
 
-                val request = call.receive<ChangePasswordRequest>()
+                val request = call.receive<PasswordRequest>()
 
                 val isValidPassword = hashingService.verify(
                     value = request.oldPassword,

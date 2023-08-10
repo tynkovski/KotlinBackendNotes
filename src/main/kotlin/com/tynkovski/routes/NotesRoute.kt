@@ -109,7 +109,7 @@ fun Route.updateNote(
                 if (wasAcknowledged) {
                     call.respond(HttpStatusCode.OK, noteMapper(note))
                 } else {
-                    throw IllegalStateException("Saving note error")
+                    throw IllegalStateException("Updating note error")
                 }
             }
         }
@@ -137,7 +137,7 @@ fun Route.deleteNote(
                 if (wasAcknowledged) {
                     call.respond(HttpStatusCode.OK, noteMapper(note))
                 } else {
-                    throw IllegalStateException("Saving note error")
+                    throw IllegalStateException("Deleting note error")
                 }
             }
         }
