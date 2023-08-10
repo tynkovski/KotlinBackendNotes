@@ -33,7 +33,7 @@ fun Route.getUser(userDataSource: UserDataSource) {
 
 fun Route.deleteUser(userDataSource: UserDataSource) {
     authenticate {
-        get("/user/delete") {
+        delete("/user/delete") {
             safe {
                 val principal = call.principal<JWTPrincipal>()
 
