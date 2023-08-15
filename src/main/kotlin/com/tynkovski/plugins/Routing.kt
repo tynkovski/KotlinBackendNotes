@@ -32,6 +32,7 @@ fun Application.configureRouting() {
         // region Auth
         register(userDataSource, hashingService, tokenService, config)
         login(userDataSource, hashingService, tokenService, config)
+        auth(userDataSource)
         // endregion
 
         // region User

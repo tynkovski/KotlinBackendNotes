@@ -11,6 +11,8 @@ import com.tynkovski.security.token.TokenConfig
 import com.tynkovski.security.token.TokenService
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -94,6 +96,21 @@ fun Route.login(
             )
 
             call.respond(HttpStatusCode.OK, AuthResponse(token = token))
+        }
+    }
+}
+
+fun Route.auth(userDataSource: UserDataSource) {
+    authenticate {
+        get("/auth") {
+            safe {
+                val principal = call.principal<JWTPrincipal>()
+
+                val userId = principal?.getClaim("userId", String::class)
+                    ?: throw IllegalStateException("Getting user error")
+
+                call.respond(HttpStatusCode.OK)
+            }
         }
     }
 }
