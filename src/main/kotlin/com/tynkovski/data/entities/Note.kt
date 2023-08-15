@@ -12,7 +12,6 @@ data class Note(
     val ownerId: String,
     val title: String = "",
     val color: Long = -1,
-    val tags: List<String> = listOf<String>(),
     @BsonId val id: String = ObjectId().toString(),
     @Contextual val createdAt: BsonTimestamp = BsonTimestamp(System.currentTimeMillis()),
     @Contextual val updatedAt: BsonTimestamp = BsonTimestamp(-1L)
@@ -33,6 +32,14 @@ data class Note(
                     "DATE_DESC" -> ByDate(false)
                     else -> ByDate(false)
                 }
+            }
+        }
+
+        override fun toString(): String {
+            return when (this) {
+                is ByDate -> Note::createdAt.name
+                is ByText -> Note::text.name
+                is ByTitle -> Note::title.name
             }
         }
 

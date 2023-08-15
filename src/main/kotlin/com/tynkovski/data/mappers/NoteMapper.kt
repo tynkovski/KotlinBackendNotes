@@ -9,7 +9,6 @@ fun noteMapper(note: Note): NoteResponse = NoteResponse(
     text = note.text,
     color = note.color,
     title = note.title,
-    tags = note.tags,
     createdAt = note.createdAt.value,
     updatedAt = note.updatedAt.value
 )
@@ -19,7 +18,6 @@ fun noteMapper(userId: String, request: NoteRequest): Note = Note(
     text = request.text,
     title = request.title,
     color = request.color,
-    tags = request.tags,
 )
 
 fun noteMapper(userId: String, noteId: String, request: NoteRequest): Note = Note(
@@ -28,5 +26,4 @@ fun noteMapper(userId: String, noteId: String, request: NoteRequest): Note = Not
     text = request.text,
     title = request.title,
     color = request.color,
-    tags = request.tags,
 )

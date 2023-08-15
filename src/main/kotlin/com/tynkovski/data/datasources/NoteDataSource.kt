@@ -3,6 +3,7 @@ package com.tynkovski.data.datasources
 import com.mongodb.client.model.Filters
 import com.mongodb.client.model.Sorts
 import com.mongodb.client.model.Updates
+import com.mongodb.kotlin.client.coroutine.FindFlow
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import com.tynkovski.data.entities.Note
 import kotlinx.coroutines.flow.firstOrNull
@@ -30,6 +31,11 @@ class NoteDataSourceImpl(
 ) : NoteDataSource {
     private val notes = database.getCollection<Note>(Note.TABLE_NAME)
 
+    private suspend fun getSorted(flow: FindFlow<Note>, ascending: Boolean, fieldName: String): List<Note> {
+        val sort = if (ascending) Sorts.ascending(fieldName) else Sorts.descending(fieldName)
+        return flow.sort(sort).toList()
+    }
+
     override suspend fun getNotesPaged(ownerId: String, sort: Note.Sort, page: Int, limit: Int): List<Note> {
         val filters = Filters.eq(Note::ownerId.name, ownerId)
 
@@ -39,30 +45,7 @@ class NoteDataSourceImpl(
             .limit(limit)
             .partial(true)
 
-        val sortedNotes = when (sort) {
-            is Note.Sort.ByText -> {
-                if (sort.isAscending)
-                    ownerNotes.sort(Sorts.ascending(Note::text.name))
-                else
-                    ownerNotes.sort(Sorts.descending(Note::text.name))
-            }
-
-            is Note.Sort.ByTitle -> {
-                if (sort.isAscending)
-                    ownerNotes.sort(Sorts.ascending(Note::title.name))
-                else
-                    ownerNotes.sort(Sorts.descending(Note::title.name))
-            }
-
-            is Note.Sort.ByDate -> {
-                if (sort.isAscending)
-                    ownerNotes.sort(Sorts.ascending(Note::createdAt.name))
-                else
-                    ownerNotes.sort(Sorts.descending(Note::createdAt.name))
-            }
-        }
-
-        return sortedNotes.toList()
+        return getSorted(ownerNotes, sort.isAscending, sort.toString())
     }
 
     override suspend fun getNotes(ownerId: String, sort: Note.Sort): List<Note> {
@@ -70,30 +53,7 @@ class NoteDataSourceImpl(
 
         val ownerNotes = notes.find(filters)
 
-        val sortedNotes = when (sort) {
-            is Note.Sort.ByText -> {
-                if (sort.isAscending)
-                    ownerNotes.sort(Sorts.ascending(Note::text.name))
-                else
-                    ownerNotes.sort(Sorts.descending(Note::text.name))
-            }
-
-            is Note.Sort.ByTitle -> {
-                if (sort.isAscending)
-                    ownerNotes.sort(Sorts.ascending(Note::title.name))
-                else
-                    ownerNotes.sort(Sorts.descending(Note::title.name))
-            }
-
-            is Note.Sort.ByDate -> {
-                if (sort.isAscending)
-                    ownerNotes.sort(Sorts.ascending(Note::createdAt.name))
-                else
-                    ownerNotes.sort(Sorts.descending(Note::createdAt.name))
-            }
-        }
-
-        return sortedNotes.toList()
+        return getSorted(ownerNotes, sort.isAscending, sort.toString())
     }
 
     override suspend fun getNote(ownerId: String, id: String): Note? {
@@ -116,7 +76,6 @@ class NoteDataSourceImpl(
             Updates.set(Note::text.name, note.text),
             Updates.set(Note::title.name, note.title),
             Updates.set(Note::color.name, note.color),
-            Updates.set(Note::tags.name, note.tags),
             Updates.set(Note::updatedAt.name, BsonTimestamp(System.currentTimeMillis())),
         )
 

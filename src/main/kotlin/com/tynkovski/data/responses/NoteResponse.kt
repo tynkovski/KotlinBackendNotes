@@ -8,7 +8,6 @@ data class NoteResponse(
     val text: String,
     val title: String?,
     val color: Long?,
-    val tags: List<String>,
     val createdAt: Long,
     val updatedAt: Long?,
 )
