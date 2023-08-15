@@ -43,6 +43,7 @@ fun Application.configureRouting() {
         // region Note
         getNote(noteDataSource)
         getNotes(noteDataSource)
+        getNotesPaged(noteDataSource)
         saveNote(noteDataSource)
         updateNote(noteDataSource)
         deleteNote(noteDataSource)

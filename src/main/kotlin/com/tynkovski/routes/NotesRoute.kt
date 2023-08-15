@@ -13,11 +13,11 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
-fun Route.getNotes(
+fun Route.getNotesPaged(
     noteDataSource: NoteDataSource
 ) {
     authenticate {
-        get("/note/paged") {
+        get("/notes/paged") {
             safe {
                 val page = call.request.queryParameters["page"]?.toInt() ?: 0
                 val limit = call.request.queryParameters["limit"]?.toInt() ?: 5
@@ -30,6 +30,29 @@ fun Route.getNotes(
 
                 val notes = noteDataSource
                     .getNotesPaged(userId, sort, page, limit)
+                    .map(::noteMapper)
+
+                call.respond(HttpStatusCode.OK, NotesResponse(notes.size, notes))
+            }
+        }
+    }
+}
+
+fun Route.getNotes(
+    noteDataSource: NoteDataSource
+) {
+    authenticate {
+        get("/notes/get") {
+            safe {
+                val sort = Note.Sort.fromString(call.request.queryParameters["sort"])
+
+                val principal = call.principal<JWTPrincipal>()
+
+                val userId = principal?.getClaim("userId", String::class)
+                    ?: throw IllegalStateException("Getting user error")
+
+                val notes = noteDataSource
+                    .getNotes(userId, sort)
                     .map(::noteMapper)
 
                 call.respond(HttpStatusCode.OK, NotesResponse(notes.size, notes))

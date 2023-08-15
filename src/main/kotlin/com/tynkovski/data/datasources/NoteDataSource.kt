@@ -13,6 +13,8 @@ interface NoteDataSource {
 
     suspend fun getNotesPaged(ownerId: String, sort: Note.Sort, page: Int, limit: Int): List<Note>
 
+    suspend fun getNotes(ownerId: String, sort: Note.Sort): List<Note>
+
     suspend fun getNote(ownerId: String, id: String): Note?
 
     suspend fun createNote(note: Note): Boolean
@@ -36,6 +38,37 @@ class NoteDataSourceImpl(
             .skip(page * limit)
             .limit(limit)
             .partial(true)
+
+        val sortedNotes = when (sort) {
+            is Note.Sort.ByText -> {
+                if (sort.isAscending)
+                    ownerNotes.sort(Sorts.ascending(Note::text.name))
+                else
+                    ownerNotes.sort(Sorts.descending(Note::text.name))
+            }
+
+            is Note.Sort.ByTitle -> {
+                if (sort.isAscending)
+                    ownerNotes.sort(Sorts.ascending(Note::title.name))
+                else
+                    ownerNotes.sort(Sorts.descending(Note::title.name))
+            }
+
+            is Note.Sort.ByDate -> {
+                if (sort.isAscending)
+                    ownerNotes.sort(Sorts.ascending(Note::createdAt.name))
+                else
+                    ownerNotes.sort(Sorts.descending(Note::createdAt.name))
+            }
+        }
+
+        return sortedNotes.toList()
+    }
+
+    override suspend fun getNotes(ownerId: String, sort: Note.Sort): List<Note> {
+        val filters = Filters.eq(Note::ownerId.name, ownerId)
+
+        val ownerNotes = notes.find(filters)
 
         val sortedNotes = when (sort) {
             is Note.Sort.ByText -> {
