@@ -19,7 +19,7 @@ fun Route.getNotes(
     authenticate {
         get("/note/paged") {
             safe {
-                val offset = call.request.queryParameters["offset"]?.toInt() ?: 0
+                val page = call.request.queryParameters["page"]?.toInt() ?: 0
                 val limit = call.request.queryParameters["limit"]?.toInt() ?: 5
                 val sort = Note.Sort.fromString(call.request.queryParameters["sort"])
 
@@ -29,7 +29,7 @@ fun Route.getNotes(
                     ?: throw IllegalStateException("Getting user error")
 
                 val notes = noteDataSource
-                    .getNotesPaged(userId, sort, offset, limit)
+                    .getNotesPaged(userId, sort, page, limit)
                     .map(::noteMapper)
 
                 call.respond(HttpStatusCode.OK, NotesResponse(notes.size, notes))

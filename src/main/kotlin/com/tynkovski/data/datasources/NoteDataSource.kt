@@ -11,7 +11,7 @@ import org.bson.BsonTimestamp
 
 interface NoteDataSource {
 
-    suspend fun getNotesPaged(ownerId: String, sort: Note.Sort, offset: Int, limit: Int): List<Note>
+    suspend fun getNotesPaged(ownerId: String, sort: Note.Sort, page: Int, limit: Int): List<Note>
 
     suspend fun getNote(ownerId: String, id: String): Note?
 
@@ -28,12 +28,12 @@ class NoteDataSourceImpl(
 ) : NoteDataSource {
     private val notes = database.getCollection<Note>(Note.TABLE_NAME)
 
-    override suspend fun getNotesPaged(ownerId: String, sort: Note.Sort, offset: Int, limit: Int): List<Note> {
+    override suspend fun getNotesPaged(ownerId: String, sort: Note.Sort, page: Int, limit: Int): List<Note> {
         val filters = Filters.eq(Note::ownerId.name, ownerId)
 
         val ownerNotes = notes
             .find(filters)
-            .skip(offset)
+            .skip(page * limit)
             .limit(limit)
             .partial(true)
 
