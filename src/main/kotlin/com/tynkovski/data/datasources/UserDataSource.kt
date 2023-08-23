@@ -17,6 +17,8 @@ interface UserDataSource {
     suspend fun deleteUserById(id: String): Boolean
 
     suspend fun changePassword(id: String, newPassword: String, newSalt: String): Boolean
+
+    suspend fun changeName(id: String, name: String): Boolean
 }
 
 class UserDataSourceImpl(
@@ -45,6 +47,12 @@ class UserDataSourceImpl(
             Updates.set(User::password.name, newPassword),
             Updates.set(User::salt.name, newSalt),
         )
+        return users.updateOne(filters, updates).wasAcknowledged()
+    }
+
+    override suspend fun changeName(id: String, name: String): Boolean {
+        val filters = Filters.eq("_id", id)
+        val updates = listOf(Updates.set(User::name.name, name))
         return users.updateOne(filters, updates).wasAcknowledged()
     }
 }

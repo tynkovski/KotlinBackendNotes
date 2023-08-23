@@ -10,8 +10,6 @@ val databaseModule = module {
         val connectionString = ConnectionString("mongodb://localhost:27017")
         val databaseName = "notes_db"
 
-        MongoClient
-            .create(connectionString)
-            .getDatabase(databaseName)
+        MongoClient.create(connectionString).getDatabase(databaseName)
     }
 }

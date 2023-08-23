@@ -3,6 +3,7 @@ package com.tynkovski.routes
 import com.tynkovski.data.datasources.UserDataSource
 import com.tynkovski.data.entities.User
 import com.tynkovski.data.requests.AuthRequest
+import com.tynkovski.data.requests.RegisterRequest
 import com.tynkovski.data.responses.AuthResponse
 import com.tynkovski.security.hashing.HashingService
 import com.tynkovski.security.hashing.SaltedHash
@@ -25,7 +26,7 @@ fun Route.register(
 ) {
     post("/auth/register") {
         safe {
-            val request = call.receive<AuthRequest>()
+            val request = call.receive<RegisterRequest>()
 
             val areFieldsBlank = request.login.isBlank() || request.password.isBlank()
             val isPasswordTooShort = request.password.length < 8
@@ -42,8 +43,9 @@ fun Route.register(
 
             val newUser = User(
                 login = request.login,
+                name = request.name,
                 password = saltedHash.hash,
-                salt = saltedHash.salt
+                salt = saltedHash.salt,
             )
 
             val wasAcknowledged = userDataSource.createUser(newUser)

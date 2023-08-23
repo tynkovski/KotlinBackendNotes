@@ -2,6 +2,7 @@ package com.tynkovski.routes
 
 import com.tynkovski.data.datasources.UserDataSource
 import com.tynkovski.data.mappers.userMapper
+import com.tynkovski.data.requests.EditNameRequest
 import com.tynkovski.data.requests.PasswordRequest
 import com.tynkovski.security.hashing.HashingService
 import com.tynkovski.security.hashing.SaltedHash
@@ -52,12 +53,35 @@ fun Route.deleteUser(userDataSource: UserDataSource) {
     }
 }
 
+fun Route.editName(
+    userDataSource: UserDataSource,
+) {
+    authenticate {
+        post("/user/name") {
+            val principal = call.principal<JWTPrincipal>()
+
+            val userId = principal?.getClaim("userId", String::class)
+                ?: throw IllegalStateException("Getting user error")
+
+            val request = call.receive<EditNameRequest>()
+
+            val wasAcknowledged = userDataSource.changeName(userId, request.name)
+
+            if (wasAcknowledged) {
+                call.respond(HttpStatusCode.OK)
+            } else {
+                throw IllegalStateException("Change password error")
+            }
+        }
+    }
+}
+
 fun Route.changePassword(
     userDataSource: UserDataSource,
     hashingService: HashingService,
 ) {
     authenticate {
-        post("/user/changePassword") {
+        post("/user/password") {
             safe {
                 val principal = call.principal<JWTPrincipal>()
 

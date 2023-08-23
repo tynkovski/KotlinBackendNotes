@@ -9,6 +9,7 @@ import org.bson.types.ObjectId
 @Serializable
 data class User(
     val login: String,
+    val name: String,
     val password: String,
     val salt: String,
     @BsonId val id: String = ObjectId().toString(),

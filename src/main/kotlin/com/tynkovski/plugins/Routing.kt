@@ -38,6 +38,7 @@ fun Application.configureRouting() {
         // region User
         getUser(userDataSource)
         deleteUser(userDataSource)
+        editName(userDataSource)
         changePassword(userDataSource, hashingService)
         // endregion
 
