@@ -3,6 +3,7 @@ package com.tynkovski.routes
 import com.tynkovski.data.datasources.NoteDataSource
 import com.tynkovski.data.entities.Note
 import com.tynkovski.data.mappers.noteMapper
+import com.tynkovski.data.requests.IdsRequest
 import com.tynkovski.data.requests.NoteRequest
 import com.tynkovski.data.responses.NotesResponse
 import io.ktor.http.*
@@ -158,9 +159,40 @@ fun Route.deleteNote(
                 val wasAcknowledged = noteDataSource.deleteNote(userId, note)
 
                 if (wasAcknowledged) {
-                    call.respond(HttpStatusCode.OK, noteMapper(note))
+                    call.respond(HttpStatusCode.OK)
                 } else {
                     throw IllegalStateException("Deleting note error")
+                }
+            }
+        }
+    }
+}
+
+fun Route.deleteNotes(
+    noteDataSource: NoteDataSource
+) {
+    authenticate {
+        delete("/notes/delete") {
+            safe {
+                val principal = call.principal<JWTPrincipal>()
+
+                val userId = principal?.getClaim("userId", String::class)
+                    ?: throw IllegalStateException("Getting user error")
+
+                val request = call.receive<IdsRequest>()
+
+                val notes = noteDataSource.getNotes(userId, request.ids)
+
+                if (notes.isEmpty()) {
+                    throw IllegalStateException("Deleting note error. Invalid ids ${request.ids}")
+                }
+
+                val wasAcknowledged = noteDataSource.deleteNotes(userId, notes)
+
+                if (wasAcknowledged) {
+                    call.respond(HttpStatusCode.OK)
+                } else {
+                    throw IllegalStateException("Deleting notes error")
                 }
             }
         }

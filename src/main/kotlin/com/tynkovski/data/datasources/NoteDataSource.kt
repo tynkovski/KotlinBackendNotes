@@ -16,6 +16,8 @@ interface NoteDataSource {
 
     suspend fun getNotes(ownerId: String, sort: Note.Sort): List<Note>
 
+    suspend fun getNotes(ownerId: String, ids: List<String>, sort: Note.Sort = Note.Sort.ByDate(false)): List<Note>
+
     suspend fun getNote(ownerId: String, id: String): Note?
 
     suspend fun createNote(note: Note): Boolean
@@ -23,6 +25,8 @@ interface NoteDataSource {
     suspend fun updateNote(ownerId: String, note: Note): Boolean
 
     suspend fun deleteNote(ownerId: String, note: Note): Boolean
+
+    suspend fun deleteNotes(ownerId: String, list: List<Note>): Boolean
 
 }
 
@@ -50,6 +54,14 @@ class NoteDataSourceImpl(
 
     override suspend fun getNotes(ownerId: String, sort: Note.Sort): List<Note> {
         val filters = Filters.eq(Note::ownerId.name, ownerId)
+
+        val ownerNotes = notes.find(filters)
+
+        return getSorted(ownerNotes, sort.isAscending, sort.toString())
+    }
+
+    override suspend fun getNotes(ownerId: String, ids: List<String>, sort: Note.Sort): List<Note> {
+        val filters = Filters.and(Filters.eq(Note::ownerId.name, ownerId), Filters.`in`("_id", ids))
 
         val ownerNotes = notes.find(filters)
 
@@ -88,5 +100,13 @@ class NoteDataSourceImpl(
         val filters = Filters.and(Filters.eq(Note::ownerId.name, ownerId), Filters.eq("_id", note.id))
 
         return notes.deleteOne(filters).wasAcknowledged()
+    }
+
+    override suspend fun deleteNotes(ownerId: String, list: List<Note>): Boolean {
+        val ids = list.map { it.id }
+
+        val filters = Filters.and(Filters.eq(Note::ownerId.name, ownerId), Filters.`in`("_id", ids))
+
+        return notes.deleteMany(filters).wasAcknowledged()
     }
 }

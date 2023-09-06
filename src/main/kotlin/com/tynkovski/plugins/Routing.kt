@@ -49,6 +49,7 @@ fun Application.configureRouting() {
         saveNote(noteDataSource)
         updateNote(noteDataSource)
         deleteNote(noteDataSource)
+        deleteNotes(noteDataSource)
         // endregion
     }
 }
